@@ -7,23 +7,23 @@ Unlike traditional job alerts, this system uses AI to reason about job descripti
 
 Key Features
 
-• Multi-site job scraping via Python (JobSpy)
-• AI-based seniority validation (Gemini)
-• Resume-to-job semantic matching
-• Intelligent scoring & filtering
-• Discord notifications for strong matches
-• PostgreSQL deduplication & storage
-• Config-driven customization
-• Designed for low API usage efficiency
+- Multi-site job scraping via Python (JobSpy)
+- AI-based seniority validation (Gemini)
+- Resume-to-job semantic matching
+- Intelligent scoring & filtering
+- Discord notifications for strong matches
+- PostgreSQL deduplication & storage
+- Config-driven customization
+- Designed for low API usage efficiency
 
 Customizable Configuration
 
 Users can easily adapt the workflow by modifying the Config node:
 
-• ExperienceLevel – Accepted seniority levels
-• JobsToScrape – Number of jobs per search
-• HomeLocation – Target job location
-• MaxCommuteMinutes – Commute tolerance
-• JobKeywords – Job search terms
-• TargetLanguage – Language preference
-• SitesToFindJobs – Job platforms to scan
+- ExperienceLevel – Accepted seniority levels
+- JobsToScrape – Number of jobs per search
+- HomeLocation – Target job location
+- MaxCommuteMinutes – Commute tolerance
+- JobKeywords – Job search terms
+- TargetLanguage – Language preference
+- SitesToFindJobs – Job platforms to scan

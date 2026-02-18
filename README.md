@@ -5,8 +5,6 @@ The workflow continuously searches multiple job platforms (such as Indeed and Li
 
 Unlike traditional job alerts, this system uses AI to reason about job descriptions rather than relying solely on keyword filters, dramatically improving signal-to-noise ratio and reducing manual review time.
 
-### Installation
-
 ### Key Features
 
 - Multi-site job scraping via Python (JobSpy)
@@ -29,6 +27,39 @@ Users can easily adapt the workflow by modifying the Config node:
 - JobKeywords – Job search terms
 - TargetLanguage – Language preference
 - SitesToFindJobs – Job platforms to scan
+
+### Installation
+
+#### Install Docker
+Ensure Docker is installed on your system.
+
+Download from:
+
+https://www.docker.com/products/docker-desktop
+
+After installation, verify:
+```
+docker --version
+docker compose version
+```
+
+#### Prepare Docker Environment
+Copy the Docker configuration files from the repository into your working directory.
+
+#### Build & Start Containers
+Run:
+```
+docker compose up --build -d
+```
+### First-Run Warning
+The first launch may take **several minutes** depending on:
+- Your network speed
+- Docker image download size
+- System performance
+
+Docker must download base images and dependencies, which is normal.
+
+Subsequent runs will be significantly faster.
 
 ### Config
 

@@ -61,6 +61,30 @@ Docker must download base images and dependencies, which is normal.
 
 Subsequent runs will be significantly faster.
 
+#### Access the n8n Web Interface
+By default, n8n runs on:  http://localhost:5678
+
+#### Open the Import Menu
+Inside n8n:
+
+1. Click Workflows
+
+2. Click Import from File
+
+#### Select the Workflow JSON
+Choose the exported workflow file from this repository: ``` n8n_workflow.json```
+
+### Important Steps
+Importing a workflow does NOT import credentials.
+
+You must manually configure:
+
+- Google Gemini credentials
+- PostgreSQL connection
+- Discord webhook
+
+Open each node showing a warning icon and select/create credentials.
+
 ### Config
 
 #### JobKeywords

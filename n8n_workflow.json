@@ -1,0 +1,2606 @@
+{
+    "name": "My workflow",
+    "nodes": [
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "171ff4c5-b238-4b4c-8a27-a5a9564bd673",
+                            "name": "MyCV",
+                            "type": "string",
+                            "value": "={{ $json.text }}"
+                        },
+                        {
+                            "id": "2be3ae0b-02f0-40c7-955f-e71b7a2881bc",
+                            "name": "JobKeywords",
+                            "type": "array",
+                            "value": "[\"software engineer\",\"cyber security\"]"
+                        },
+                        {
+                            "id": "b062eed9-9fbd-4f45-9117-0ccd4b5d53db",
+                            "name": "ExperienceLevel",
+                            "type": "array",
+                            "value": "=[\"internship\", \"entry\"]"
+                        },
+                        {
+                            "id": "5808ab43-3551-42a0-b677-535b29bebf6c",
+                            "name": "JobsToScrape",
+                            "type": "number",
+                            "value": 40
+                        },
+                        {
+                            "id": "9076e2c5-2e23-41f5-bb73-04ab4534b960",
+                            "name": "HomeLocation",
+                            "type": "string",
+                            "value": "Seattle, WA"
+                        },
+                        {
+                            "id": "12b91df8-f52d-41b8-b18d-5d378942281f",
+                            "name": "MaxCommuteMinutes",
+                            "type": "number",
+                            "value": 120
+                        },
+                        {
+                            "id": "5d06b164-8c25-4e3d-8739-1900d9a4c7db",
+                            "name": "TargetLanguage",
+                            "type": "string",
+                            "value": "English"
+                        },
+                        {
+                            "id": "0de5a6e7-ba88-44c6-b62f-f49045a136fa",
+                            "name": "SitesToFindJobs",
+                            "value": "[\"indeed\",\"linkedin\"]",
+                            "type": "array"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "7ab9c2bb-1e57-47cf-a6bd-8b2222fae899",
+            "name": "Config",
+            "type": "n8n-nodes-base.set",
+            "position": [
+                -3872,
+                400
+            ],
+            "typeVersion": 3.4
+        },
+        {
+            "parameters": {},
+            "id": "abef74e5-0aec-4ac5-989c-5db559d43666",
+            "name": "Done!",
+            "type": "n8n-nodes-base.noOp",
+            "position": [
+                -2592,
+                -64
+            ],
+            "typeVersion": 1,
+            "executeOnce": true
+        },
+        {
+            "parameters": {
+                "jsonSchemaExample": "{\n\"jobLanguage\": \"English\",\n\"confirmed_seniority\": \"mid_senior\",\n\"is_match\": true\n}"
+            },
+            "id": "16925c49-4ee7-450d-8ddf-ab99da50423a",
+            "name": "Structured Output Parser",
+            "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "position": [
+                -1232,
+                640
+            ],
+            "typeVersion": 1.3
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "01f222ae-8825-46f4-b127-fb10bc094a83",
+                            "leftValue": "={{$('Config').item.json.ExperienceLevel.includes($json.output.confirmed_seniority) }}",
+                            "rightValue": "true",
+                            "operator": {
+                                "type": "boolean",
+                                "operation": "true",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "153e2c5b-02c9-4e6e-b3d3-10e6f437d563",
+            "name": "If Seniority Match",
+            "type": "n8n-nodes-base.if",
+            "position": [
+                -992,
+                368
+            ],
+            "typeVersion": 2.2,
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=You are an expert HR data analyst. Your task is to validate the seniority level of a job posting based on its full description.\n\nThe job was originally tagged with the seniority level: \"{{ $('Config').item.json.ExperienceLevel }}\"\n\nAnalyze the full job description below and determine if this tag is accurate.\n\nReturn ONLY a valid JSON object with these fields:\n- \"confirmed_seniority\": The most accurate seniority level based on your analysis of the text. You MUST choose one from: [\"internship\", \"entry\", \"associate\", \"mid_senior\", \"director\", \"executive\"].\n- \"is_match\": A boolean (true/false) indicating if your confirmed_seniority matches the original tag.\n\nJob Description:\n\"\"\"\n{{ $('Items Loop').first().json.description }}\n\"\"\"",
+                "hasOutputParser": true,
+                "options": {}
+            },
+            "id": "73359904-1f9f-47e3-ad2a-61f6890288b4",
+            "name": "Deconstruct Job Data",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "position": [
+                -1376,
+                400
+            ],
+            "typeVersion": 2.2,
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "options": {}
+            },
+            "id": "40f9c854-5ad2-4f5f-9fb5-23f67550dd84",
+            "name": "Google Gemini",
+            "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "position": [
+                -1376,
+                640
+            ],
+            "typeVersion": 1,
+            "credentials": {
+                "googlePalmApi": {
+                    "id": "vuPp7f89b61UZPSX",
+                    "name": "Google Gemini(PaLM) Api account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "options": {}
+            },
+            "id": "8bd4b7eb-81de-41bd-9cc6-03f99b7df277",
+            "name": "Google Gemini Deep Analysis",
+            "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "position": [
+                -800,
+                608
+            ],
+            "typeVersion": 1,
+            "credentials": {
+                "googlePalmApi": {
+                    "id": "vuPp7f89b61UZPSX",
+                    "name": "Google Gemini(PaLM) Api account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsonSchemaExample": "{\n  \"summary\": \"A 2-bullet point summary.\",\n  \"key_skills\": [\"skill1\",\"skill2\"],\n  \"match_score\": 5,\n  \"salaryInfo\": \"The extracted salary range\",\n  \"reasoning\": \"A one-sentence explanation for the score.\"\n}"
+            },
+            "id": "1b35066f-b3e5-475d-ab24-0ede85e00e16",
+            "name": "Structured Output Parser Deep Analysis",
+            "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "position": [
+                -656,
+                624
+            ],
+            "typeVersion": 1.3
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "64d17e00-bada-41e9-918c-f507a1e59df9",
+                            "operator": {
+                                "type": "number",
+                                "operation": "gte"
+                            },
+                            "leftValue": "={{ $('AI Deep Analysis').item.json.output.match_score }}",
+                            "rightValue": 5
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "94a81c9c-5ef7-4043-8a75-1369d8dd5726",
+            "name": "If Has High Match Score",
+            "type": "n8n-nodes-base.if",
+            "position": [
+                176,
+                320
+            ],
+            "typeVersion": 2.2,
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=Here is the candidate's resume and the job description. Please perform your analysis.\n---\n**Candidate's Resume:**\n\"\"\"\n{{ $('Config').first().json.MyCV }}\n\"\"\"\n---\n**Job Description:**\n\"\"\"\n{{ $('Items Loop').first().json.description }}\n\n\"\"\"",
+                "hasOutputParser": true,
+                "options": {
+                    "systemMessage": "=You are an expert career coach and HR specialist. Your task is to analyze a candidate's resume against a job description and provide a detailed, structured analysis.\n\nReturn ONLY a valid JSON object with the following structure:\n{\n  \"summary\": \"A 2-bullet point summary of the role's main responsibilities.\",\n  \"key_skills\": [\"An array of the top 5 most important skills required for this job.\"],\n  \"match_score\": \"An integer from 1 to 10 of how well the resume matches the job requirements.\",\n  \"salaryInfo\": \"The extracted salary range or the string 'Not specified' if no salary is mentioned.\",\n  \"reasoning\": \"A one-sentence explanation for the score, highlighting a key strength or a potential gap in the resume.\"\n}"
+                }
+            },
+            "id": "d2b4ce07-7ad4-46da-91bc-81dd0e0ce075",
+            "name": "AI Deep Analysis",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "position": [
+                -800,
+                352
+            ],
+            "typeVersion": 2.2,
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "options": {}
+            },
+            "id": "bfbd23d9-c514-4ab3-8cb3-d385cb7c4a74",
+            "name": "Items Loop",
+            "type": "n8n-nodes-base.splitInBatches",
+            "position": [
+                -2240,
+                368
+            ],
+            "typeVersion": 3,
+            "executeOnce": false,
+            "alwaysOutputData": false,
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "content": "## Filter\nFilter all the Job to making it easy for next step to move on and reduce the API usage.",
+                "height": 592,
+                "width": 416,
+                "color": 4
+            },
+            "id": "4278cfc0-1ee0-4e8d-984e-76f71d92954a",
+            "name": "Sticky Note1",
+            "type": "n8n-nodes-base.stickyNote",
+            "position": [
+                -1456,
+                176
+            ],
+            "typeVersion": 1
+        },
+        {
+            "parameters": {
+                "content": "## Checking match from Resume\n\nChecking the match and give a score base on the match using AI",
+                "height": 592,
+                "width": 496,
+                "color": 6
+            },
+            "id": "849b915e-f020-4ab2-8db4-f6ad13adba67",
+            "name": "Sticky Note3",
+            "type": "n8n-nodes-base.stickyNote",
+            "position": [
+                -1024,
+                176
+            ],
+            "typeVersion": 1
+        },
+        {
+            "parameters": {
+                "content": "## Alerting\njust send the high match to my private discord server",
+                "height": 592,
+                "width": 432
+            },
+            "id": "b621c5c9-8615-4759-9a9e-24a105f51f8c",
+            "name": "Sticky Note4",
+            "type": "n8n-nodes-base.stickyNote",
+            "position": [
+                128,
+                176
+            ],
+            "typeVersion": 1
+        },
+        {
+            "parameters": {},
+            "id": "aed25618-01ff-4dc2-9258-4e5079cb144c",
+            "name": "To The Next",
+            "type": "n8n-nodes-base.noOp",
+            "position": [
+                368,
+                640
+            ],
+            "typeVersion": 1
+        },
+        {
+            "parameters": {
+                "authentication": "webhook",
+                "content": "=### Match Job Found! ({{ $('AI Deep Analysis').item.json.output.match_score }}/10)\n**Position:** {{ $('Items Loop').item.json.job_title }}\n**Company:** {{ $('Items Loop').item.json.company }}\n\n**AI Reasoning:**\n> *{{ $('AI Deep Analysis').item.json.output.reasoning }}*\n\n**Key Skills:** \n`{{ $('AI Deep Analysis').item.json.output.key_skills.join(', ') }}`\n\n**Salary:** `{{ $('AI Deep Analysis').item.json.output.salaryInfo }}`\n\n**[Apply Here]({{ $('Items Loop').item.json.apply_url }})** | [View Original Job]({{ $('Items Loop').item.json.job_url }})",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.discord",
+            "typeVersion": 2,
+            "position": [
+                368,
+                304
+            ],
+            "id": "b5df5269-1c60-47fe-9d02-076fecd9191e",
+            "name": "Discord",
+            "webhookId": "ed9a4e86-f64a-40db-a255-35db072115d8",
+            "credentials": {
+                "discordWebhookApi": {
+                    "id": "h3qqAYhXt3F6egQG",
+                    "name": "Discord Webhook account"
+                }
+            },
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "weeks",
+                            "triggerAtDay": [
+                                1,
+                                2,
+                                3,
+                                4,
+                                5
+                            ],
+                            "triggerAtHour": 9,
+                            "triggerAtMinute": 30
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.3,
+            "position": [
+                -4688,
+                176
+            ],
+            "id": "c64ef306-2f9e-4ff9-8437-6ddf37474f02",
+            "name": "Trigger on Seattle Jobs post time"
+        },
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "hours",
+                            "hoursInterval": 3
+                        }
+                    ]
+                }
+            },
+            "id": "389946b5-5323-44a3-a1b0-aba08ae6010b",
+            "name": "Trigger every 3 hour",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "position": [
+                -4688,
+                400
+            ],
+            "typeVersion": 1.2
+        },
+        {
+            "parameters": {
+                "fileSelector": "/files/*.pdf",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.readWriteFile",
+            "typeVersion": 1.1,
+            "position": [
+                -4240,
+                400
+            ],
+            "id": "11c6b9d8-71b1-42c4-ade4-26e64c0201cc",
+            "name": "Reading your Resume"
+        },
+        {
+            "parameters": {
+                "operation": "pdf",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.extractFromFile",
+            "typeVersion": 1.1,
+            "position": [
+                -4048,
+                400
+            ],
+            "id": "f23d78cf-1541-4d2a-9b6a-f71c56b669f9",
+            "name": "Cover File to Data"
+        },
+        {
+            "parameters": {
+                "language": "pythonNative",
+                "pythonCode": "from jobspy import scrape_jobs\n\n# 1. Scrape the jobs\njobs = scrape_jobs(\n    site_name=[\"indeed\"], \n    search_term=_items[0][\"json\"][\"data_value\"],\n    location=\"Seattle, WA\",\n    results_wanted=80,\n    hours_old=12,\n    country_indeed='USA',\n)\n\n# 2. Data Cleaning for n8n Compatibility\n# Convert Timestamps to strings (n8n cannot read Python datetime objects directly)\nfor col in jobs.select_dtypes(include=['datetime64', 'datetimetz']).columns:\n    jobs[col] = jobs[col].dt.strftime('%Y-%m-%d %H:%M:%S')\n\n# Replace NaN/None values with an empty string so the JSON doesn't break\njobs = jobs.fillna(\"\")\n\n# 3. Convert DataFrame to a list of dictionaries (Array of Objects)\nresults = jobs.to_dict(orient='records')\n\n# 4. Return to n8n\nreturn results"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -2576,
+                400
+            ],
+            "id": "2af8535d-e572-42e1-8cf6-46fc597301f6",
+            "name": "Websearch Job",
+            "executeOnce": false,
+            "alwaysOutputData": false,
+            "retryOnFail": false,
+            "notesInFlow": false,
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "authentication": "webhook",
+                "content": "Starting the Job search.",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.discord",
+            "typeVersion": 2,
+            "position": [
+                -4448,
+                400
+            ],
+            "id": "e90d41df-9726-40e6-93a8-67d535e4eefb",
+            "name": "Discord2",
+            "webhookId": "3fccc3e9-ee5f-4ce3-ac11-f74ec48ccaed",
+            "credentials": {
+                "discordWebhookApi": {
+                    "id": "h3qqAYhXt3F6egQG",
+                    "name": "Discord Webhook account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "SELECT job_url FROM jobs WHERE job_url = $1;",
+                "options": {
+                    "queryReplacement": "={{ $('Items Loop').item.json.job_url }}"
+                }
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -448,
+                336
+            ],
+            "id": "aca19eda-28fb-470d-bf3b-c918b611453b",
+            "name": "Execute a SQL query2",
+            "alwaysOutputData": true,
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 3
+                    },
+                    "conditions": [
+                        {
+                            "id": "5bb0fe4b-6780-4afd-b29f-b7469bd2cec4",
+                            "leftValue": "={{$json.job_url }}",
+                            "rightValue": 1,
+                            "operator": {
+                                "type": "string",
+                                "operation": "exists",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3,
+            "position": [
+                -272,
+                336
+            ],
+            "id": "ee83804d-0e71-45e1-99da-b4288f2be04e",
+            "name": "If"
+        },
+        {
+            "parameters": {},
+            "id": "c82dd312-2953-4db4-bbb3-c0d406de33d9",
+            "name": "To The Next2",
+            "type": "n8n-nodes-base.noOp",
+            "position": [
+                -64,
+                656
+            ],
+            "typeVersion": 1
+        },
+        {
+            "parameters": {
+                "schema": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "public"
+                },
+                "table": {
+                    "__rl": true,
+                    "value": "jobs",
+                    "mode": "list",
+                    "cachedResultName": "jobs"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "match_score": "={{ $('AI Deep Analysis').item.json.output.match_score }}",
+                        "ids": "={{ $('Items Loop').item.json.id }}",
+                        "job_url": "={{ $('Items Loop').item.json.job_url }}",
+                        "job_title": "={{ $('Items Loop').item.json.title }}",
+                        "company": "={{ $('Items Loop').item.json.company }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "ids",
+                            "displayName": "ids",
+                            "required": true,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "job_url",
+                            "displayName": "job_url",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "job_title",
+                            "displayName": "job_title",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "company",
+                            "displayName": "company",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "match_score",
+                            "displayName": "match_score",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "number",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "created_at",
+                            "displayName": "created_at",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "dateTime",
+                            "canBeUsedToMatch": true,
+                            "removed": true
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -64,
+                352
+            ],
+            "id": "ba733e00-c4ea-4a91-81a2-2aec92ab676d",
+            "name": "Insert rows in a table",
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            },
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "authentication": "webhook",
+                "content": "=Done Job search for {{ $('Switch').item.json.data_value }} on {{ $('Switch').item.json.config_value }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.discord",
+            "typeVersion": 2,
+            "position": [
+                -2400,
+                -64
+            ],
+            "id": "4654d9f6-2b46-494c-ac4c-4628fca3a954",
+            "name": "Discord1",
+            "webhookId": "a433efc3-c453-4101-96eb-4154270d62a0",
+            "credentials": {
+                "discordWebhookApi": {
+                    "id": "h3qqAYhXt3F6egQG",
+                    "name": "Discord Webhook account"
+                }
+            }
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.noOp",
+            "typeVersion": 1,
+            "position": [
+                -1376,
+                880
+            ],
+            "id": "8d670c65-af5b-414b-b391-42e9f24112c2",
+            "name": "Error"
+        },
+        {
+            "parameters": {
+                "content": "## Database inut\nadding the jobs that does not exit in DB and send them to discord.\nif exits in the DB, do nothing.",
+                "height": 592,
+                "width": 592
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "position": [
+                -496,
+                176
+            ],
+            "typeVersion": 1,
+            "id": "791a3389-d0ff-4398-9438-2a07b1d228d1",
+            "name": "Sticky Note"
+        },
+        {
+            "parameters": {
+                "language": "pythonNative",
+                "pythonCode": "from jobspy import scrape_jobs\n\n# 1. Scrape the jobs\njobs = scrape_jobs(\n    site_name=[\"linkedin\"], \n    search_term=_items[0][\"json\"][\"data_value\"],\n    location=\"Seattle, WA\",\n    results_wanted=40,\n    hours_old=12,\n    linkedin_fetch_description=True,\n)\n\n# 2. Data Cleaning for n8n Compatibility\n# Convert Timestamps to strings (n8n cannot read Python datetime objects directly)\nfor col in jobs.select_dtypes(include=['datetime64', 'datetimetz']).columns:\n    jobs[col] = jobs[col].dt.strftime('%Y-%m-%d %H:%M:%S')\n\n# Replace NaN/None values with an empty string so the JSON doesn't break\njobs = jobs.fillna(\"\")\n\n# 3. Convert DataFrame to a list of dictionaries (Array of Objects)\nresults = jobs.to_dict(orient='records')\n\n# 4. Return to n8n\nreturn results"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -2576,
+                1344
+            ],
+            "id": "bc1ab0d3-4af9-4e5d-855e-f2f960652659",
+            "name": "Websearch Job2",
+            "executeOnce": false,
+            "alwaysOutputData": false,
+            "retryOnFail": false,
+            "notesInFlow": false,
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "jsonSchemaExample": "{\n\"jobLanguage\": \"English\",\n\"confirmed_seniority\": \"mid_senior\",\n\"is_match\": true\n}"
+            },
+            "id": "2ae4cf4d-1cd8-4ffa-8fc2-d546e7ec6a77",
+            "name": "Structured Output Parser1",
+            "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "position": [
+                -1232,
+                1552
+            ],
+            "typeVersion": 1.3
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "01f222ae-8825-46f4-b127-fb10bc094a83",
+                            "leftValue": "={{$('Config').item.json.ExperienceLevel.includes($json.output.confirmed_seniority) }}",
+                            "rightValue": "true",
+                            "operator": {
+                                "type": "boolean",
+                                "operation": "true",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "e351e83c-acba-4aaa-a1e5-4aac84820b22",
+            "name": "If Seniority Match1",
+            "type": "n8n-nodes-base.if",
+            "position": [
+                -992,
+                1280
+            ],
+            "typeVersion": 2.2,
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=You are an expert HR data analyst. Your task is to validate the seniority level of a job posting based on its full description.\n\nThe job was originally tagged with the seniority level: \"{{ $('Config').item.json.ExperienceLevel }}\"\n\nAnalyze the full job description below and determine if this tag is accurate.\n\nReturn ONLY a valid JSON object with these fields:\n- \"confirmed_seniority\": The most accurate seniority level based on your analysis of the text. You MUST choose one from: [\"internship\", \"entry\", \"associate\", \"mid_senior\", \"director\", \"executive\"].\n- \"is_match\": A boolean (true/false) indicating if your confirmed_seniority matches the original tag.\n\nJob Description:\n\"\"\"\n{{ $('Items Loop1').first().json.description }}\n\"\"\"",
+                "hasOutputParser": true,
+                "options": {}
+            },
+            "id": "78aac3d7-57b0-4b0e-8786-00d81979ebc3",
+            "name": "Deconstruct Job Data1",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "position": [
+                -1376,
+                1312
+            ],
+            "typeVersion": 2.2,
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "options": {}
+            },
+            "id": "63870ba3-6e23-4a7c-a9da-25036ac89a86",
+            "name": "Google Gemini1",
+            "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "position": [
+                -1376,
+                1552
+            ],
+            "typeVersion": 1,
+            "credentials": {
+                "googlePalmApi": {
+                    "id": "vuPp7f89b61UZPSX",
+                    "name": "Google Gemini(PaLM) Api account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "options": {}
+            },
+            "id": "bc92c46c-136d-4b1d-b2ca-27ec2fa19021",
+            "name": "Google Gemini Deep Analysis1",
+            "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "position": [
+                -800,
+                1520
+            ],
+            "typeVersion": 1,
+            "credentials": {
+                "googlePalmApi": {
+                    "id": "vuPp7f89b61UZPSX",
+                    "name": "Google Gemini(PaLM) Api account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsonSchemaExample": "{\n  \"summary\": \"A 2-bullet point summary.\",\n  \"key_skills\": [\"skill1\",\"skill2\"],\n  \"match_score\": 5,\n  \"salaryInfo\": \"The extracted salary range\",\n  \"reasoning\": \"A one-sentence explanation for the score.\"\n}"
+            },
+            "id": "efcaaeb8-43b0-4fd0-a812-167f05eb6749",
+            "name": "Structured Output Parser Deep Analysis1",
+            "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "position": [
+                -656,
+                1536
+            ],
+            "typeVersion": 1.3
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "64d17e00-bada-41e9-918c-f507a1e59df9",
+                            "operator": {
+                                "type": "number",
+                                "operation": "gte"
+                            },
+                            "leftValue": "={{ $('AI Deep Analysis1').item.json.output.match_score }}",
+                            "rightValue": 5
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "935b8c3f-2fc3-409f-986a-2caa8748eb6d",
+            "name": "If Has High Match Score1",
+            "type": "n8n-nodes-base.if",
+            "position": [
+                176,
+                1232
+            ],
+            "typeVersion": 2.2,
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=Here is the candidate's resume and the job description. Please perform your analysis.\n---\n**Candidate's Resume:**\n\"\"\"\n{{ $('Config').first().json.MyCV }}\n\"\"\"\n---\n**Job Description:**\n\"\"\"\n{{ $('Items Loop1').first().json.description }}\n\n\"\"\"",
+                "hasOutputParser": true,
+                "options": {
+                    "systemMessage": "=You are an expert career coach and HR specialist. Your task is to analyze a candidate's resume against a job description and provide a detailed, structured analysis.\n\nReturn ONLY a valid JSON object with the following structure:\n{\n  \"summary\": \"A 2-bullet point summary of the role's main responsibilities.\",\n  \"key_skills\": [\"An array of the top 5 most important skills required for this job.\"],\n  \"match_score\": \"An integer from 1 to 10 of how well the resume matches the job requirements.\",\n  \"salaryInfo\": \"The extracted salary range or the string 'Not specified' if no salary is mentioned.\",\n  \"reasoning\": \"A one-sentence explanation for the score, highlighting a key strength or a potential gap in the resume.\"\n}"
+                }
+            },
+            "id": "a7846018-cf83-4df6-955b-8589b82d47d6",
+            "name": "AI Deep Analysis1",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "position": [
+                -800,
+                1264
+            ],
+            "typeVersion": 2.2,
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "options": {}
+            },
+            "id": "e0885a42-9371-4735-bd2d-c016f631d4de",
+            "name": "Items Loop1",
+            "type": "n8n-nodes-base.splitInBatches",
+            "position": [
+                -2256,
+                1312
+            ],
+            "typeVersion": 3,
+            "executeOnce": false,
+            "alwaysOutputData": false,
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "content": "## Filter\nFilter all the Job to making it easy for next step to move on and reduce the API usage.",
+                "height": 592,
+                "width": 416,
+                "color": 4
+            },
+            "id": "8d63dcee-8553-44be-a6e3-f55afe223318",
+            "name": "Sticky Note2",
+            "type": "n8n-nodes-base.stickyNote",
+            "position": [
+                -1456,
+                1088
+            ],
+            "typeVersion": 1
+        },
+        {
+            "parameters": {
+                "content": "## Checking match from Resume\n\nChecking the match and give a score base on the match using AI",
+                "height": 592,
+                "width": 512,
+                "color": 6
+            },
+            "id": "80d6fa90-1c45-421f-bb2d-6c9d859af6b3",
+            "name": "Sticky Note5",
+            "type": "n8n-nodes-base.stickyNote",
+            "position": [
+                -1024,
+                1088
+            ],
+            "typeVersion": 1
+        },
+        {
+            "parameters": {
+                "content": "## Alerting\njust send the high match to my private discord server",
+                "height": 592,
+                "width": 432
+            },
+            "id": "4d67a34b-a90a-445e-96b4-ce347ac5f38e",
+            "name": "Sticky Note6",
+            "type": "n8n-nodes-base.stickyNote",
+            "position": [
+                128,
+                1088
+            ],
+            "typeVersion": 1
+        },
+        {
+            "parameters": {},
+            "id": "e6e2b246-a2b1-4083-bd7e-581856de32bd",
+            "name": "To The Next1",
+            "type": "n8n-nodes-base.noOp",
+            "position": [
+                384,
+                1552
+            ],
+            "typeVersion": 1
+        },
+        {
+            "parameters": {
+                "authentication": "webhook",
+                "content": "=### Match Job Found! ({{ $('AI Deep Analysis1').item.json.output.match_score }}/10)\n**Position:** {{ $('Items Loop1').item.json.job_title }}\n**Company:** {{ $('Items Loop1').item.json.company }}\n\n**AI Reasoning:**\n> *{{ $('AI Deep Analysis1').item.json.output.reasoning }}*\n\n**Key Skills:** \n`{{ $('AI Deep Analysis1').item.json.output.key_skills.join(', ') }}`\n\n**Salary:** `{{ $('AI Deep Analysis1').item.json.output.salaryInfo }}`\n\n**[Apply Here]({{ $('Items Loop1').item.json.apply_url }})** | [View Original Job]({{ $('Items Loop1').item.json.job_url }})",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.discord",
+            "typeVersion": 2,
+            "position": [
+                368,
+                1216
+            ],
+            "id": "8c7b5879-fd6d-48d5-ba37-7c9ad969d043",
+            "name": "Discord3",
+            "webhookId": "ed9a4e86-f64a-40db-a255-35db072115d8",
+            "credentials": {
+                "discordWebhookApi": {
+                    "id": "h3qqAYhXt3F6egQG",
+                    "name": "Discord Webhook account"
+                }
+            },
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "SELECT job_url FROM jobs WHERE job_url = $1;",
+                "options": {
+                    "queryReplacement": "={{ $('Items Loop1').item.json.job_url }}"
+                }
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -448,
+                1248
+            ],
+            "id": "613026bc-4f70-4c76-ad1b-09bdc4625494",
+            "name": "Execute a SQL query4",
+            "alwaysOutputData": true,
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 3
+                    },
+                    "conditions": [
+                        {
+                            "id": "5bb0fe4b-6780-4afd-b29f-b7469bd2cec4",
+                            "leftValue": "={{$json.job_url }}",
+                            "rightValue": 1,
+                            "operator": {
+                                "type": "string",
+                                "operation": "exists",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3,
+            "position": [
+                -272,
+                1248
+            ],
+            "id": "f0331e50-6e11-47da-9514-150ec68bf3f9",
+            "name": "If1"
+        },
+        {
+            "parameters": {},
+            "id": "95ae5f7c-0cd1-4d86-919a-89e5ffaa9f28",
+            "name": "To The Next3",
+            "type": "n8n-nodes-base.noOp",
+            "position": [
+                -64,
+                1568
+            ],
+            "typeVersion": 1
+        },
+        {
+            "parameters": {
+                "schema": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "public"
+                },
+                "table": {
+                    "__rl": true,
+                    "value": "jobs",
+                    "mode": "list",
+                    "cachedResultName": "jobs"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "match_score": "={{ $('AI Deep Analysis1').item.json.output.match_score }}",
+                        "ids": "={{ $('Items Loop1').item.json.id }}",
+                        "job_url": "={{ $('Items Loop1').item.json.job_url }}",
+                        "job_title": "={{ $('Items Loop1').item.json.title }}",
+                        "company": "={{ $('Items Loop1').item.json.company }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "ids",
+                            "displayName": "ids",
+                            "required": true,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "job_url",
+                            "displayName": "job_url",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "job_title",
+                            "displayName": "job_title",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "company",
+                            "displayName": "company",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "match_score",
+                            "displayName": "match_score",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "number",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "created_at",
+                            "displayName": "created_at",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "dateTime",
+                            "canBeUsedToMatch": true,
+                            "removed": true
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -64,
+                1264
+            ],
+            "id": "89ab280e-e787-44a6-bbca-21955f10e310",
+            "name": "Insert rows in a table1",
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            },
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.noOp",
+            "typeVersion": 1,
+            "position": [
+                -1376,
+                1792
+            ],
+            "id": "fb811fff-2e88-4b8b-9e00-42bb7049c10b",
+            "name": "Error1"
+        },
+        {
+            "parameters": {
+                "content": "## Database inut\nadding the jobs that does not exit in DB and send them to discord.\nif exits in the DB, do nothing.",
+                "height": 592,
+                "width": 592
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "position": [
+                -496,
+                1088
+            ],
+            "typeVersion": 1,
+            "id": "129ffdf5-0ec2-4eb1-9786-dc483832ceef",
+            "name": "Sticky Note7"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "CREATE TABLE IF NOT EXISTS jobs (\n    ids TEXT PRIMARY KEY,\n    job_url TEXT UNIQUE,\n    job_title TEXT,\n    company TEXT,\n    match_score INT,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -4528,
+                -368
+            ],
+            "id": "90e941ea-be94-44ab-90fd-d360dcdcbb40",
+            "name": "checking DB table exit",
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "INSERT INTO jobs (job_url, job_title, company) VALUES ('test.com', 'test', 'test');\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -4352,
+                -368
+            ],
+            "id": "e8a79c61-c657-4440-8c07-01f9b6026fe6",
+            "name": "ensure dumm data exit",
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            },
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "CREATE TABLE IF NOT EXISTS allJobrecords (\n    ids TEXT PRIMARY KEY,\n    job_url TEXT UNIQUE,\n    job_title TEXT,\n    company TEXT,\n    match_score INT,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -4160,
+                -368
+            ],
+            "id": "cca62869-8d27-4584-a64c-d1cc2ec1cf73",
+            "name": "checking if DB table exit for all job list",
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "INSERT INTO allJobrecords (ids, job_url, job_title, company) VALUES ('test', 'test.com', 'test', 'test');\n",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -3968,
+                -368
+            ],
+            "id": "1b1ebc52-6fa9-41b1-a98f-260a0a6cdcb5",
+            "name": "Ensure dumm data exsit",
+            "retryOnFail": false,
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            },
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "SELECT ids FROM allJobrecords WHERE ids = $1;",
+                "options": {
+                    "queryReplacement": "={{ $json.id }}"
+                }
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -1952,
+                384
+            ],
+            "id": "df325741-7ed1-4241-a1e7-71d584ab72b6",
+            "name": "Execute a SQL query",
+            "alwaysOutputData": true,
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 3
+                    },
+                    "conditions": [
+                        {
+                            "id": "aab1ec2a-53ff-4293-bab7-414b17f08c58",
+                            "leftValue": "={{ $json.ids }}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "string",
+                                "operation": "exists",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3,
+            "position": [
+                -1792,
+                384
+            ],
+            "id": "9fd2b003-fce1-4e7f-bb8f-0dce94683f0c",
+            "name": "If4"
+        },
+        {
+            "parameters": {
+                "schema": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "public"
+                },
+                "table": {
+                    "__rl": true,
+                    "value": "alljobrecords",
+                    "mode": "list",
+                    "cachedResultName": "alljobrecords"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "ids": "={{ $('Items Loop').item.json.id }}",
+                        "job_url": "={{ $('Items Loop').item.json.id }}",
+                        "job_title": "={{ $('Items Loop').item.json.title }}",
+                        "company": "={{ $('Items Loop').item.json.company }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "ids",
+                            "displayName": "ids",
+                            "required": true,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "job_url",
+                            "displayName": "job_url",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "job_title",
+                            "displayName": "job_title",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "company",
+                            "displayName": "company",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "match_score",
+                            "displayName": "match_score",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "number",
+                            "canBeUsedToMatch": true,
+                            "removed": true
+                        },
+                        {
+                            "id": "created_at",
+                            "displayName": "created_at",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "dateTime",
+                            "canBeUsedToMatch": true,
+                            "removed": true
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -1584,
+                400
+            ],
+            "id": "dcacf15e-6324-4fa9-a026-c684927ebcdb",
+            "name": "Insert rows in a table4",
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "language": "pythonNative",
+                "pythonCode": "# 1. Get the array from your Config Node\n# Replace 'Config Node' with the exact name of your node\n# Replace 'my_array' with the name of the key containing the list\nconfig_array = _items[0][\"json\"][\"SitesToFindJobs\"]\n\n# 2. Get the array from your second node (e.g., Data Node)\n# Replace 'Data Node' with your actual node name\nother_array = _items[0][\"json\"][\"JobKeywords\"]\n\nresults = []\n\n# 3. Perform the M * N cross-join\nfor item_a in config_array:\n    for item_b in other_array:\n        # Create a new combined dictionary\n        results.append({\n            \"config_value\": item_a,\n            \"data_value\": item_b\n        })\n\n# 4. Return the list. n8n will now run all \n# subsequent nodes once for every item in this list.\nreturn results"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -3664,
+                400
+            ],
+            "id": "65175aae-f33f-4fcc-ac98-b19925c57a60",
+            "name": "Code in Python"
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 3
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.config_value }}",
+                                        "rightValue": "indeed",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        },
+                                        "id": "5f3020f9-9328-4c9f-a949-f291490d767b"
+                                    }
+                                ],
+                                "combinator": "and"
+                            }
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 3
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "4e5384d3-62e4-4a5f-a217-80fb4f690c02",
+                                        "leftValue": "={{ $json.config_value }}",
+                                        "rightValue": "linkedin",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            }
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.4,
+            "position": [
+                -3328,
+                400
+            ],
+            "id": "faf4c1c5-2bbb-4d08-9d8a-9d4149c5992b",
+            "name": "Switch"
+        },
+        {
+            "parameters": {
+                "options": {
+                    "reset": false
+                }
+            },
+            "type": "n8n-nodes-base.splitInBatches",
+            "typeVersion": 3,
+            "position": [
+                -2928,
+                384
+            ],
+            "id": "3c10d501-2512-42f4-894a-add8f41875e3",
+            "name": "Loop Over Items"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.noOp",
+            "name": "Replace Me",
+            "typeVersion": 1,
+            "position": [
+                -1936,
+                656
+            ],
+            "id": "bce7ade0-9f11-4508-9800-b40a82876b4d",
+            "executeOnce": true
+        },
+        {
+            "parameters": {
+                "options": {}
+            },
+            "type": "n8n-nodes-base.splitInBatches",
+            "typeVersion": 3,
+            "position": [
+                -2912,
+                1328
+            ],
+            "id": "7a6eee25-e642-4846-8b9d-d8165289db15",
+            "name": "Loop Over Items1"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.noOp",
+            "name": "Replace Me1",
+            "typeVersion": 1,
+            "position": [
+                -2032,
+                1552
+            ],
+            "id": "4838f2ff-4dc1-4db7-a797-22054886e117",
+            "executeOnce": true
+        },
+        {
+            "parameters": {
+                "content": "## Error handle\nThis is what i have for error handle. but I have set up fix HTTP call say delete now",
+                "color": 3
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "position": [
+                -2032,
+                1856
+            ],
+            "typeVersion": 1,
+            "id": "0e1f51d3-d5e6-4e09-9da9-dfd1b149787c",
+            "name": "Sticky Note8"
+        },
+        {
+            "parameters": {
+                "content": "## Error handle\nThis is what i have for error handle. but I have set up fix HTTP call say delete now",
+                "color": 3
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "position": [
+                -2032,
+                944
+            ],
+            "typeVersion": 1,
+            "id": "ead509de-a8b5-44d3-aa86-ca14b84025a5",
+            "name": "Sticky Note9"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "SELECT ids FROM allJobrecords WHERE ids = $1;",
+                "options": {
+                    "queryReplacement": "={{ $json.id }}"
+                }
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -2032,
+                1328
+            ],
+            "id": "7d084f20-ccd5-45b4-8098-82a07c203407",
+            "name": "Execute a SQL query1",
+            "alwaysOutputData": true,
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 3
+                    },
+                    "conditions": [
+                        {
+                            "id": "aab1ec2a-53ff-4293-bab7-414b17f08c58",
+                            "leftValue": "={{ $json.ids }}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "string",
+                                "operation": "empty",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3,
+            "position": [
+                -1872,
+                1328
+            ],
+            "id": "b722d3ed-9162-497c-accc-524d3572d15a",
+            "name": "If5"
+        },
+        {
+            "parameters": {
+                "schema": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "public"
+                },
+                "table": {
+                    "__rl": true,
+                    "value": "alljobrecords",
+                    "mode": "list",
+                    "cachedResultName": "alljobrecords"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "job_url": "={{ $('Items Loop1').item.json.job_url }}",
+                        "job_title": "={{ $('Items Loop1').item.json.title }}",
+                        "company": "={{ $('Items Loop1').item.json.company }}",
+                        "ids": "={{ $('Items Loop1').item.json.id }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "ids",
+                            "displayName": "ids",
+                            "required": true,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "job_url",
+                            "displayName": "job_url",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "job_title",
+                            "displayName": "job_title",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "company",
+                            "displayName": "company",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "match_score",
+                            "displayName": "match_score",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "number",
+                            "canBeUsedToMatch": true,
+                            "removed": true
+                        },
+                        {
+                            "id": "created_at",
+                            "displayName": "created_at",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "dateTime",
+                            "canBeUsedToMatch": true,
+                            "removed": true
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -1664,
+                1312
+            ],
+            "id": "f8d49554-e289-4ea4-9049-46b210c64ded",
+            "name": "Insert rows in a table5",
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {},
+            "id": "89b980bb-5301-49a7-87fa-55c148885390",
+            "name": "To The Next4",
+            "type": "n8n-nodes-base.noOp",
+            "position": [
+                -1664,
+                1552
+            ],
+            "typeVersion": 1
+        },
+        {
+            "parameters": {},
+            "id": "e7b740f5-c9a3-43a8-984f-0ce6a9be3f6e",
+            "name": "To The Next5",
+            "type": "n8n-nodes-base.noOp",
+            "position": [
+                -1584,
+                640
+            ],
+            "typeVersion": 1
+        }
+    ],
+    "pinData": {},
+    "connections": {
+        "Config": {
+            "main": [
+                [
+                    {
+                        "node": "Code in Python",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Items Loop": {
+            "main": [
+                [
+                    {
+                        "node": "Replace Me",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Execute a SQL query",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "To The Next": {
+            "main": [
+                [
+                    {
+                        "node": "Items Loop",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Google Gemini": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "Deconstruct Job Data",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "AI Deep Analysis": {
+            "main": [
+                [
+                    {
+                        "node": "Execute a SQL query2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If Seniority Match": {
+            "main": [
+                [
+                    {
+                        "node": "AI Deep Analysis",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Items Loop",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Deconstruct Job Data": {
+            "main": [
+                [
+                    {
+                        "node": "If Seniority Match",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If Has High Match Score": {
+            "main": [
+                [
+                    {
+                        "node": "Discord",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "To The Next",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Discord",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Structured Output Parser": {
+            "ai_outputParser": [
+                [
+                    {
+                        "node": "Deconstruct Job Data",
+                        "type": "ai_outputParser",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Google Gemini Deep Analysis": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "AI Deep Analysis",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Structured Output Parser Deep Analysis": {
+            "ai_outputParser": [
+                [
+                    {
+                        "node": "AI Deep Analysis",
+                        "type": "ai_outputParser",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Discord": {
+            "main": [
+                [
+                    {
+                        "node": "To The Next",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Trigger on Seattle Jobs post time": {
+            "main": [
+                [
+                    {
+                        "node": "Discord2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Trigger every 3 hour": {
+            "main": [
+                [
+                    {
+                        "node": "Discord2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Reading your Resume": {
+            "main": [
+                [
+                    {
+                        "node": "Cover File to Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Cover File to Data": {
+            "main": [
+                [
+                    {
+                        "node": "Config",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Websearch Job": {
+            "main": [
+                [
+                    {
+                        "node": "Items Loop",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Discord2": {
+            "main": [
+                [
+                    {
+                        "node": "Reading your Resume",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute a SQL query2": {
+            "main": [
+                [
+                    {
+                        "node": "If",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                []
+            ]
+        },
+        "If": {
+            "main": [
+                [
+                    {
+                        "node": "To The Next2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Insert rows in a table",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                []
+            ]
+        },
+        "To The Next2": {
+            "main": [
+                [
+                    {
+                        "node": "Items Loop",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Insert rows in a table": {
+            "main": [
+                [
+                    {
+                        "node": "If Has High Match Score",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Done!": {
+            "main": [
+                [
+                    {
+                        "node": "Discord1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Error": {
+            "main": [
+                [
+                    {
+                        "node": "Items Loop",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Websearch Job2": {
+            "main": [
+                [
+                    {
+                        "node": "Items Loop1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Structured Output Parser1": {
+            "ai_outputParser": [
+                [
+                    {
+                        "node": "Deconstruct Job Data1",
+                        "type": "ai_outputParser",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If Seniority Match1": {
+            "main": [
+                [
+                    {
+                        "node": "AI Deep Analysis1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Items Loop1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Deconstruct Job Data1": {
+            "main": [
+                [
+                    {
+                        "node": "If Seniority Match1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Google Gemini1": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "Deconstruct Job Data1",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Google Gemini Deep Analysis1": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "AI Deep Analysis1",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Structured Output Parser Deep Analysis1": {
+            "ai_outputParser": [
+                [
+                    {
+                        "node": "AI Deep Analysis1",
+                        "type": "ai_outputParser",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If Has High Match Score1": {
+            "main": [
+                [
+                    {
+                        "node": "Discord3",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "To The Next1",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Discord3",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "AI Deep Analysis1": {
+            "main": [
+                [
+                    {
+                        "node": "Execute a SQL query4",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Items Loop1": {
+            "main": [
+                [
+                    {
+                        "node": "Replace Me1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Execute a SQL query1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "To The Next1": {
+            "main": [
+                [
+                    {
+                        "node": "Items Loop1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Discord3": {
+            "main": [
+                [
+                    {
+                        "node": "To The Next1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute a SQL query4": {
+            "main": [
+                [
+                    {
+                        "node": "If1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If1": {
+            "main": [
+                [
+                    {
+                        "node": "To The Next3",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Insert rows in a table1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "To The Next3": {
+            "main": [
+                [
+                    {
+                        "node": "Items Loop1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Insert rows in a table1": {
+            "main": [
+                [
+                    {
+                        "node": "If Has High Match Score1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Error1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Error1": {
+            "main": [
+                [
+                    {
+                        "node": "Items Loop1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "checking DB table exit": {
+            "main": [
+                [
+                    {
+                        "node": "ensure dumm data exit",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "ensure dumm data exit": {
+            "main": [
+                [
+                    {
+                        "node": "checking if DB table exit for all job list",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "checking if DB table exit for all job list": {
+            "main": [
+                [
+                    {
+                        "node": "Ensure dumm data exsit",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute a SQL query": {
+            "main": [
+                [
+                    {
+                        "node": "If4",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If4": {
+            "main": [
+                [
+                    {
+                        "node": "To The Next5",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Insert rows in a table4",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Insert rows in a table4": {
+            "main": [
+                [
+                    {
+                        "node": "Deconstruct Job Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Code in Python": {
+            "main": [
+                [
+                    {
+                        "node": "Switch",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch": {
+            "main": [
+                [
+                    {
+                        "node": "Loop Over Items",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Loop Over Items1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Loop Over Items": {
+            "main": [
+                [
+                    {
+                        "node": "Done!",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Websearch Job",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Replace Me": {
+            "main": [
+                [
+                    {
+                        "node": "Loop Over Items",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Loop Over Items1": {
+            "main": [
+                [
+                    {
+                        "node": "Done!",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Websearch Job2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Replace Me1": {
+            "main": [
+                [
+                    {
+                        "node": "Loop Over Items1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute a SQL query1": {
+            "main": [
+                [
+                    {
+                        "node": "If5",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If5": {
+            "main": [
+                [
+                    {
+                        "node": "Insert rows in a table5",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "To The Next4",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Insert rows in a table5": {
+            "main": [
+                [
+                    {
+                        "node": "Deconstruct Job Data1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "To The Next4": {
+            "main": [
+                [
+                    {
+                        "node": "Items Loop1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "To The Next5": {
+            "main": [
+                [
+                    {
+                        "node": "Items Loop",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1",
+        "binaryMode": "separate",
+        "availableInMCP": false,
+        "timeSavedMode": "fixed",
+        "callerPolicy": "workflowsFromSameOwner",
+        "executionTimeout": 3600,
+        "saveDataErrorExecution": "all",
+        "saveDataSuccessExecution": "all",
+        "saveExecutionProgress": true,
+        "saveManualExecutions": true
+    },
+    "versionId": "c92982ed-b853-4416-86f2-92a325ae5138",
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "b7c479cb59cf2471dc2a0b09af650d491d0dde3fbe53c955e33926b2761efa71"
+    },
+    "id": "X0ogZw3bnMTV3AyP",
+    "tags": []
+}

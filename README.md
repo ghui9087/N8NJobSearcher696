@@ -5,6 +5,8 @@ The workflow continuously searches multiple job platforms (such as Indeed and Li
 
 Unlike traditional job alerts, this system uses AI to reason about job descriptions rather than relying solely on keyword filters, dramatically improving signal-to-noise ratio and reducing manual review time.
 
+![Overall view](./assets/Overall%20Node.jpg)
+
 ### Key Features
 
 - Multi-site job scraping via Python (JobSpy)

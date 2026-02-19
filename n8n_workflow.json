@@ -61,7 +61,7 @@
             "name": "Config",
             "type": "n8n-nodes-base.set",
             "position": [
-                -3872,
+                -3680,
                 400
             ],
             "typeVersion": 3.4
@@ -129,7 +129,7 @@
         {
             "parameters": {
                 "promptType": "define",
-                "text": "=You are an expert HR data analyst. Your task is to validate the seniority level of a job posting based on its full description.\n\nThe job was originally tagged with the seniority level: \"{{ $('Config').item.json.ExperienceLevel }}\"\n\nAnalyze the full job description below and determine if this tag is accurate.\n\nReturn ONLY a valid JSON object with these fields:\n- \"confirmed_seniority\": The most accurate seniority level based on your analysis of the text. You MUST choose one from: [\"internship\", \"entry\", \"associate\", \"mid_senior\", \"director\", \"executive\"].\n- \"is_match\": A boolean (true/false) indicating if your confirmed_seniority matches the original tag.\n\nJob Description:\n\"\"\"\n{{ $('Items Loop').first().json.description }}\n\"\"\"",
+                "text": "=You are an expert HR data analyst. Your task is to validate the seniority level of a job posting based on its full description.\n\nThe job was originally tagged with the seniority level: \"{{ $('Config').item.json.ExperienceLevel }}\"\n\nAnalyze the full job description below and determine if this tag is accurate.\n\nReturn ONLY a valid JSON object with these fields:\n- \"confirmed_seniority\": The most accurate seniority level based on your analysis of the text. You MUST choose one from: [\"internship\", \"entry\", \"associate\", \"mid_senior\", \"director\", \"executive\"].\n- \"is_match\": A boolean (true/false) indicating if your confirmed_seniority matches the original tag.\n\nJob Description:\n\"\"\"\n{{ $('Items Loop').item.json.description }}\n\"\"\"",
                 "hasOutputParser": true,
                 "options": {}
             },
@@ -231,7 +231,7 @@
         {
             "parameters": {
                 "promptType": "define",
-                "text": "=Here is the candidate's resume and the job description. Please perform your analysis.\n---\n**Candidate's Resume:**\n\"\"\"\n{{ $('Config').first().json.MyCV }}\n\"\"\"\n---\n**Job Description:**\n\"\"\"\n{{ $('Items Loop').first().json.description }}\n\n\"\"\"",
+                "text": "=Here is the candidate's resume and the job description. Please perform your analysis.\n---\n**Candidate's Resume:**\n\"\"\"\n{{ $('Config').first().json.MyCV }}\n\"\"\"\n---\n**Job Description:**\n\"\"\"\n{{ $('Items Loop').item.json.description }}\n\"\"\"",
                 "hasOutputParser": true,
                 "options": {
                     "systemMessage": "=You are an expert career coach and HR specialist. Your task is to analyze a candidate's resume against a job description and provide a detailed, structured analysis.\n\nReturn ONLY a valid JSON object with the following structure:\n{\n  \"summary\": \"A 2-bullet point summary of the role's main responsibilities.\",\n  \"key_skills\": [\"An array of the top 5 most important skills required for this job.\"],\n  \"match_score\": \"An integer from 1 to 10 of how well the resume matches the job requirements.\",\n  \"salaryInfo\": \"The extracted salary range or the string 'Not specified' if no salary is mentioned.\",\n  \"reasoning\": \"A one-sentence explanation for the score, highlighting a key strength or a potential gap in the resume.\"\n}"
@@ -324,7 +324,7 @@
         {
             "parameters": {
                 "authentication": "webhook",
-                "content": "=### Match Job Found! ({{ $('AI Deep Analysis').item.json.output.match_score }}/10)\n**Position:** {{ $('Items Loop').item.json.job_title }}\n**Company:** {{ $('Items Loop').item.json.company }}\n\n**AI Reasoning:**\n> *{{ $('AI Deep Analysis').item.json.output.reasoning }}*\n\n**Key Skills:** \n`{{ $('AI Deep Analysis').item.json.output.key_skills.join(', ') }}`\n\n**Salary:** `{{ $('AI Deep Analysis').item.json.output.salaryInfo }}`\n\n**[Apply Here]({{ $('Items Loop').item.json.apply_url }})** | [View Original Job]({{ $('Items Loop').item.json.job_url }})",
+                "content": "=### Match Job Found! ({{ $('AI Deep Analysis').item.json.output.match_score }}/10)\n**Position:** {{ $('Items Loop').item.json.title }}\n**Company:** {{ $('Items Loop').item.json.company }}\n\n**AI Reasoning:**\n> *{{ $('AI Deep Analysis').item.json.output.reasoning }}*\n\n**Key Skills:** \n`{{ $('AI Deep Analysis').item.json.output.key_skills.join(', ') }}`\n\n**Salary:** `{{ $('AI Deep Analysis').item.json.output.salaryInfo }}`\n\n**[Apply Here]({{ $('Items Loop').item.json.apply_url }})** | [View Original Job]({{ $('Items Loop').item.json.job_url }})",
                 "options": {}
             },
             "type": "n8n-nodes-base.discord",
@@ -366,7 +366,7 @@
             "type": "n8n-nodes-base.scheduleTrigger",
             "typeVersion": 1.3,
             "position": [
-                -4688,
+                -4496,
                 176
             ],
             "id": "c64ef306-2f9e-4ff9-8437-6ddf37474f02",
@@ -387,7 +387,7 @@
             "name": "Trigger every 3 hour",
             "type": "n8n-nodes-base.scheduleTrigger",
             "position": [
-                -4688,
+                -4496,
                 400
             ],
             "typeVersion": 1.2
@@ -400,7 +400,7 @@
             "type": "n8n-nodes-base.readWriteFile",
             "typeVersion": 1.1,
             "position": [
-                -4240,
+                -4048,
                 400
             ],
             "id": "11c6b9d8-71b1-42c4-ade4-26e64c0201cc",
@@ -414,7 +414,7 @@
             "type": "n8n-nodes-base.extractFromFile",
             "typeVersion": 1.1,
             "position": [
-                -4048,
+                -3856,
                 400
             ],
             "id": "f23d78cf-1541-4d2a-9b6a-f71c56b669f9",
@@ -448,7 +448,7 @@
             "type": "n8n-nodes-base.discord",
             "typeVersion": 2,
             "position": [
-                -4448,
+                -4256,
                 400
             ],
             "id": "e90d41df-9726-40e6-93a8-67d535e4eefb",
@@ -749,7 +749,7 @@
         {
             "parameters": {
                 "promptType": "define",
-                "text": "=You are an expert HR data analyst. Your task is to validate the seniority level of a job posting based on its full description.\n\nThe job was originally tagged with the seniority level: \"{{ $('Config').item.json.ExperienceLevel }}\"\n\nAnalyze the full job description below and determine if this tag is accurate.\n\nReturn ONLY a valid JSON object with these fields:\n- \"confirmed_seniority\": The most accurate seniority level based on your analysis of the text. You MUST choose one from: [\"internship\", \"entry\", \"associate\", \"mid_senior\", \"director\", \"executive\"].\n- \"is_match\": A boolean (true/false) indicating if your confirmed_seniority matches the original tag.\n\nJob Description:\n\"\"\"\n{{ $('Items Loop1').first().json.description }}\n\"\"\"",
+                "text": "=You are an expert HR data analyst. Your task is to validate the seniority level of a job posting based on its full description.\n\nThe job was originally tagged with the seniority level: \"{{ $('Config').item.json.ExperienceLevel }}\"\n\nAnalyze the full job description below and determine if this tag is accurate.\n\nReturn ONLY a valid JSON object with these fields:\n- \"confirmed_seniority\": The most accurate seniority level based on your analysis of the text. You MUST choose one from: [\"internship\", \"entry\", \"associate\", \"mid_senior\", \"director\", \"executive\"].\n- \"is_match\": A boolean (true/false) indicating if your confirmed_seniority matches the original tag.\n\nJob Description:\n\"\"\"\n{{ $('Items Loop1').item.json.description }}\n\"\"\"",
                 "hasOutputParser": true,
                 "options": {}
             },
@@ -851,7 +851,7 @@
         {
             "parameters": {
                 "promptType": "define",
-                "text": "=Here is the candidate's resume and the job description. Please perform your analysis.\n---\n**Candidate's Resume:**\n\"\"\"\n{{ $('Config').first().json.MyCV }}\n\"\"\"\n---\n**Job Description:**\n\"\"\"\n{{ $('Items Loop1').first().json.description }}\n\n\"\"\"",
+                "text": "=Here is the candidate's resume and the job description. Please perform your analysis.\n---\n**Candidate's Resume:**\n\"\"\"\n{{ $('Config').first().json.MyCV }}\n\"\"\"\n---\n**Job Description:**\n\"\"\"\n{{ $('Items Loop1').item().json.description }}\n\n\"\"\"",
                 "hasOutputParser": true,
                 "options": {
                     "systemMessage": "=You are an expert career coach and HR specialist. Your task is to analyze a candidate's resume against a job description and provide a detailed, structured analysis.\n\nReturn ONLY a valid JSON object with the following structure:\n{\n  \"summary\": \"A 2-bullet point summary of the role's main responsibilities.\",\n  \"key_skills\": [\"An array of the top 5 most important skills required for this job.\"],\n  \"match_score\": \"An integer from 1 to 10 of how well the resume matches the job requirements.\",\n  \"salaryInfo\": \"The extracted salary range or the string 'Not specified' if no salary is mentioned.\",\n  \"reasoning\": \"A one-sentence explanation for the score, highlighting a key strength or a potential gap in the resume.\"\n}"
@@ -944,7 +944,7 @@
         {
             "parameters": {
                 "authentication": "webhook",
-                "content": "=### Match Job Found! ({{ $('AI Deep Analysis1').item.json.output.match_score }}/10)\n**Position:** {{ $('Items Loop1').item.json.job_title }}\n**Company:** {{ $('Items Loop1').item.json.company }}\n\n**AI Reasoning:**\n> *{{ $('AI Deep Analysis1').item.json.output.reasoning }}*\n\n**Key Skills:** \n`{{ $('AI Deep Analysis1').item.json.output.key_skills.join(', ') }}`\n\n**Salary:** `{{ $('AI Deep Analysis1').item.json.output.salaryInfo }}`\n\n**[Apply Here]({{ $('Items Loop1').item.json.apply_url }})** | [View Original Job]({{ $('Items Loop1').item.json.job_url }})",
+                "content": "=### Match Job Found! ({{ $('AI Deep Analysis1').item.json.output.match_score }}/10)\n**Position:** {{ $('Items Loop1').item.json.title }}\n**Company:** {{ $('Items Loop1').item.json.company }}\n\n**AI Reasoning:**\n> *{{ $('AI Deep Analysis1').item.json.output.reasoning }}*\n\n**Key Skills:** \n`{{ $('AI Deep Analysis1').item.json.output.key_skills.join(', ') }}`\n\n**Salary:** `{{ $('AI Deep Analysis1').item.json.output.salaryInfo }}`\n\n**[Apply Here]({{ $('Items Loop1').item.json.apply_url }})** | [View Original Job]({{ $('Items Loop1').item.json.job_url }})",
                 "options": {}
             },
             "type": "n8n-nodes-base.discord",
@@ -1233,8 +1233,8 @@
             "type": "n8n-nodes-base.postgres",
             "typeVersion": 2.6,
             "position": [
-                -3968,
-                -368
+                -3936,
+                -464
             ],
             "id": "1b1ebc52-6fa9-41b1-a98f-260a0a6cdcb5",
             "name": "Ensure dumm data exsit",
@@ -1393,7 +1393,7 @@
             "type": "n8n-nodes-base.postgres",
             "typeVersion": 2.6,
             "position": [
-                -1584,
+                -1600,
                 400
             ],
             "id": "dcacf15e-6324-4fa9-a026-c684927ebcdb",
@@ -1413,7 +1413,7 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                -3664,
+                -3472,
                 400
             ],
             "id": "65175aae-f33f-4fcc-ac98-b19925c57a60",
@@ -1739,6 +1739,27 @@
                 640
             ],
             "typeVersion": 1
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "DELETE FROM allJobrecords WHERE ids = 'in-ce5653da262922db';",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -3792,
+                -352
+            ],
+            "id": "3838e11a-f73c-438a-87bd-dfa7d632594b",
+            "name": "Execute a SQL query3",
+            "credentials": {
+                "postgres": {
+                    "id": "kojCP6BZYuA2l0Du",
+                    "name": "Postgres account"
+                }
+            }
         }
     ],
     "pinData": {},
@@ -2453,13 +2474,7 @@
                         "index": 0
                     }
                 ],
-                [
-                    {
-                        "node": "Loop Over Items1",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
+                []
             ]
         },
         "Loop Over Items": {
@@ -2581,6 +2596,11 @@
                     }
                 ]
             ]
+        },
+        "Ensure dumm data exsit": {
+            "main": [
+                []
+            ]
         }
     },
     "active": true,
@@ -2596,7 +2616,7 @@
         "saveExecutionProgress": true,
         "saveManualExecutions": true
     },
-    "versionId": "c92982ed-b853-4416-86f2-92a325ae5138",
+    "versionId": "aa938c64-c9c6-4fed-b71e-7240da2c6da9",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "b7c479cb59cf2471dc2a0b09af650d491d0dde3fbe53c955e33926b2761efa71"
